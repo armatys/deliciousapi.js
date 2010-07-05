@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+    <title>DeliciousAPI.js example</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="jquery-1.4.2.min.js"></script>
+    <script src="md5.js"></script>
+    <script src="../deliciousapi.js"></script>
+    <script>
+    function obj2str(o, depth) {
+        depth = depth || 0;
+        var n;
+        var buf = "";
+        var val;
+        
+        buf += "<p style='margin-left:" + (depth*20) + "px'>";
+        
+        for (n in o) {
+            val = o[n]
+            if (typeof(val) == "object") val = obj2str(val, depth+1);
+            buf += n + ": " + val + "<br/>";
+        }
+        
+        buf += "</p>";
+        
+        return buf;
+    }
+    
+    function main() {
+        var dapi = new DeliciousAPI();
+        
+        //get bookmarks
+        dapi.bookmarks({
+            tag:'javascript',
+            popular:true,
+            max: 10,
+            callback:function(deliciousDict) {
+                console.log(deliciousDict);
+                $('#dcontent').append("<h3>Bookmarks for tag</h3>");
+                $('#dcontent').append(obj2str(deliciousDict));
+            }
+        });
+        
+        //get tags
+        /*dapi.tags({
+            user:'your username',
+            callback:function(ddata) {
+                console.log(ddata);
+                $('#dcontent').append("<h3>Tags of user</h3>");
+                $('#dcontent').append(obj2str(ddata));
+            }
+        });*/
+        
+        //get website info
+        dapi.info({
+            url:"http://delicious.com/",
+            callback:function(ddata) {
+                console.log(ddata);
+                $('#dcontent').append("<h3>Website info</h3>");
+                $('#dcontent').append(obj2str(ddata));
+            }
+        });
+    } //-main
+    
+    $(main);
+    </script>
+</head>
+
+<body>
+<div id="body">
+        <h1 id="title">DeliciousAPI.js</h1>
+        
+        <div id="dcontent">
+        
+        </div>
+        
+        <hr/>
+        <div id="footer">
+            <p style="font-size:10px;">&copy; SharpNose 2010</p>
+        </div>
+    </div><!-- #body -->
+</body>
+</html>
