@@ -49,42 +49,42 @@ var DeliciousAPI = function(params) {
  * This method is called automatically, but it can be called at arbitrary times.
  **/
 DeliciousAPI.prototype.processQueue = function() {
-	if (this.busy) return;
-	
-	//check the time of a last call
-	var now = (new Date()).getTime();
-	var delta = now - this.lastApiCall;
-	var that = this;
-	
-	if (delta < this.timeBetween) {
-		setTimeout(function() {
-			that.processQueue();
-		}, this.timeBetween - delta);
-		return;
-	}
-	
-	this.busy = true;
-	var query = this.queue.shift();
-	var that = this;
-	
-	if (! query) return;
-	
-	$.ajax({
-		dataType: 'jsonp',
-		error: function(XMLHttpRequest, textStatus, errorThrown) {
-			console.error("Error while downloading data.");
-			that.queue.push(query);
-			query.callback(null, textStatus);
-			that.processQueue();
-		},
-		success: function(data, textStatus, XMLHttpRequest) {
-			that.lastApiCall = (new Date()).getTime();
-			query.callback(data, textStatus);
-			that.busy = false;
-			that.processQueue();
-		},
-		url: query.url
-	});
+    if (this.busy) return;
+    
+    //check the time of a last call
+    var now = (new Date()).getTime();
+    var delta = now - this.lastApiCall;
+    var that = this;
+    
+    if (delta < this.timeBetween) {
+        setTimeout(function() {
+            that.processQueue();
+        }, this.timeBetween - delta);
+        return;
+    }
+    
+    this.busy = true;
+    var query = this.queue.shift();
+    var that = this;
+    
+    if (! query) return;
+    
+    $.ajax({
+        dataType: 'jsonp',
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            console.error("Error while downloading data.");
+            that.queue.push(query);
+            query.callback(null, textStatus);
+            that.processQueue();
+        },
+        success: function(data, textStatus, XMLHttpRequest) {
+            that.lastApiCall = (new Date()).getTime();
+            query.callback(data, textStatus);
+            that.busy = false;
+            that.processQueue();
+        },
+        url: query.url
+    });
 }
 
 /**
@@ -131,11 +131,11 @@ DeliciousAPI.prototype.bookmarks = function(params) {
  **/
 DeliciousAPI.prototype.tags = function(params) {
     if (params.user) {
-		if (params.tag) {
-			this.related_tags_for_user(params);
-		} else {
-			this.tags_for_user(params);
-		}
+        if (params.tag) {
+            this.related_tags_for_user(params);
+        } else {
+            this.tags_for_user(params);
+        }
     } else {
         throw("Invalid or incomplete parameters (tags).");
     }
@@ -144,16 +144,16 @@ DeliciousAPI.prototype.tags = function(params) {
 }
 
 DeliciousAPI.prototype.info = function(params) {
-	if (params.url) {
-		params.hash = hex_md5(params.url);
+    if (params.url) {
+        params.hash = hex_md5(params.url);
         this.urlhash_info(params);
-	} else if (params.hash) {
-		this.urlhash_info(params);
-	} else {
-		throw("Invalid or incomplete parameters (info).");
-	}
-	
-	this.processQueue();
+    } else if (params.hash) {
+        this.urlhash_info(params);
+    } else {
+        throw("Invalid or incomplete parameters (info).");
+    }
+    
+    this.processQueue();
 }
 
 
@@ -164,7 +164,7 @@ DeliciousAPI.prototype.info = function(params) {
  * Fetches data about given website.
  **/
 DeliciousAPI.prototype.urlhash_info = function(params) {
-	if (params.hash.length !== 32) {
+    if (params.hash.length !== 32) {
         console.error("Invalid URL hash.");
         return;
     }
@@ -197,9 +197,9 @@ DeliciousAPI.prototype.bookmarks_for_user = function(params) {
     
     var url = this.baseHost + params.user;
     if (params.tag) {
-    	url += "/" + params.tag;
+        url += "/" + params.tag;
     }
-	
+    
     url += "?count=" + params.max;
     this.queue.push({url:url, callback:params.callback});
 }
@@ -215,11 +215,11 @@ DeliciousAPI.prototype.bookmarks_for_tag = function(params) {
     
     var url = this.baseHost;
     if (params.popular) {
-    	url += "popular/";
+        url += "popular/";
     } else {
-    	url += "tag/";
+        url += "tag/";
     }
-	
+    
     url += params.tag + "?count=" + params.max;
     this.queue.push({url:url, callback:params.callback});
 }
@@ -228,7 +228,7 @@ DeliciousAPI.prototype.bookmarks_for_tag = function(params) {
  * Fetches all public tags of user <code>params.user</code>.
  **/
 DeliciousAPI.prototype.tags_for_user = function(params) {
-	if (params.user.length <= 0) {
+    if (params.user.length <= 0) {
         console.error("Username is empty.");
         return;
     }
@@ -241,7 +241,7 @@ DeliciousAPI.prototype.tags_for_user = function(params) {
  * Fetches all public tags of user <code>params.user</code>, that are related to <code>params.tag</code>.
  **/
 DeliciousAPI.prototype.related_tags_for_user = function(params) {
-	if (params.user.length <= 0 || params.tag.length <= 0) {
+    if (params.user.length <= 0 || params.tag.length <= 0) {
         console.error("Username or tag is empty.");
         return;
     }
