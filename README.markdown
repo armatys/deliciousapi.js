@@ -1,7 +1,5 @@
 ### DeliciousAPI.js
 
-A JavaScript library for interacting with delicious.com feeds API.
+A JavaScript library for interacting with delicious.com feeds API. Plays well with Delicious (maximum 1 req/s)
 
-To use it you will need JQuery and (optionally) md5 library.
-
-JQuery is currently used for JSONP request, but this dependency will be removed soon.
+An md5 library is an optional dependency - you will need it if you want to get bookmarks data, based on a website's URL.
