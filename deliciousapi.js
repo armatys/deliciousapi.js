@@ -19,6 +19,8 @@
  * IN THE SOFTWARE.
  */
 
+(function() {
+
 globalThis = this;
 
 var DeliciousAPI = function(params) {
@@ -306,3 +308,7 @@ DeliciousAPI.prototype.related_tags_for_user = function(params) {
     var url = this.baseHost + "tags/" + user + "/" + params.tag;
     this.queue.push({url:url, callback:params.callback});
 }
+
+globalThis.DeliciousAPI = DeliciousAPI;
+
+})();
