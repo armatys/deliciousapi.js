@@ -3,7 +3,6 @@
 <head>
     <title>DeliciousAPI.js example</title>
     <link rel="stylesheet" href="style.css" />
-    <script src="jquery-1.4.2.min.js"></script>
     <script src="md5.js"></script>
     <script src="../deliciousapi.js"></script>
     <script>
@@ -28,6 +27,7 @@
     
     function main() {
         var dapi = new DeliciousAPI();
+        var dcont = document.getElementById('dcontent');
         
         //get bookmarks
         dapi.bookmarks({
@@ -35,9 +35,15 @@
             popular:true,
             max: 10,
             callback:function(deliciousDict) {
+            	var h = document.createElement('H3');
+            	var resp = document.createElement('DIV');
+            	
+            	h.innerHTML = 'Bookmarks for tag';
+            	resp.innerHTML = obj2str(deliciousDict);
+            	
                 console.log(deliciousDict);
-                $('#dcontent').append("<h3>Bookmarks for tag</h3>");
-                $('#dcontent').append(obj2str(deliciousDict));
+                dcont.appendChild(h);
+                dcont.appendChild(resp);
             }
         });
         
@@ -45,9 +51,15 @@
         /*dapi.tags({
             user:'your username',
             callback:function(ddata) {
+	            var h = document.createElement('H3');
+            	var resp = document.createElement('DIV');
+            	
+            	h.innerHTML = 'User tags';
+            	resp.innerHTML = obj2str(ddata);
+            	
                 console.log(ddata);
-                $('#dcontent').append("<h3>Tags of user</h3>");
-                $('#dcontent').append(obj2str(ddata));
+                dcont.appendChild(h);
+                dcont.appendChild(resp);
             }
         });*/
         
@@ -55,14 +67,20 @@
         dapi.info({
             url:"http://delicious.com/",
             callback:function(ddata) {
+	            var h = document.createElement('H3');
+            	var resp = document.createElement('DIV');
+            	
+            	h.innerHTML = 'Website info';
+            	resp.innerHTML = obj2str(ddata);
+            	
                 console.log(ddata);
-                $('#dcontent').append("<h3>Website info</h3>");
-                $('#dcontent').append(obj2str(ddata));
+                dcont.appendChild(h);
+                dcont.appendChild(resp);
             }
         });
     } //-main
     
-    $(main);
+    window.onload = main;
     </script>
 </head>
 

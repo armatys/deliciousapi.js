@@ -35,6 +35,72 @@ var DeliciousAPI = function(params) {
     this.lastApiCall = 0; //last successful API call to delicious
 }
 
+/** Performs a JSONP request with given parameters:
+ * {String} params.url path to JSONP resource
+ * {Object} params.data object with request data
+ * {Function} params.callback function to call after successful download
+ * {Function} params.failed function to call after error or timeout
+ * {String} params.name name of a parameter, that remote server treats as a callback
+ **/
+DeliciousAPI.prototype.jsonp = function(params) {
+	var n, buf, scriptEl, timer, url, queryConn;
+	var timeout = 30000;
+	var that = this;
+	var uid = 'dapi_jsonp_' + new Date().getTime();
+	
+	if (/\?/.test(params.url)) {
+		queryConn = '&';
+	} else {
+		queryConn = '?';
+	}
+	
+	url = params.url + queryConn + (params.name || 'jsonp') + '=' + uid;
+	
+	!params.cache && (url += '&unique=' + new Date().getTime());
+	
+	if (params.data) {
+		for (n in params.data) {
+			if (!params.data[n]) continue;
+			buf = '&' + n + '=' + params.data[n];
+			url += encodeURI(buf);
+		}
+	}
+	
+	/* set callback if specified */
+	if (params.callback) {
+		window[uid] = function(data) {
+			delete window[uid];
+			clearTimeout(timer);
+			params.callback(data);
+			
+			setTimeout(function() {
+				scriptEl.parentNode.removeChild(scriptEl);
+			}, 1);
+		};
+	}
+	
+	timer = setTimeout(function() {
+		delete window[uid];
+		document.body.removeChild(scriptEl);
+		if (params.failed) params.failed();
+	}, timeout);
+	
+	scriptEl = this.createJS(url);
+	document.body.appendChild(scriptEl);
+}
+
+/* Creates a new SCRIPT element
+ * @param {String} path path to JavaScript resource
+ * @return {Element} a SCRIPT Element
+ **/
+DeliciousAPI.prototype.createJS = function(path) {
+	var el = document.createElement('SCRIPT');
+	el.setAttribute('type', 'text/javascript');
+	el.setAttribute('async', 'async');
+	el.setAttribute('src', path);
+	return el;
+}
+
 /**
  * Processes <code>this.requestQueue</code>.
  * This method is called automatically, but it can be called at arbitrary times.
@@ -60,21 +126,21 @@ DeliciousAPI.prototype.processQueue = function() {
     
     if (! query) return;
     
-    $.ajax({
-        dataType: 'jsonp',
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-            console.error("Error while downloading data.");
-            that.queue.push(query);
-            query.callback(null, textStatus);
-            that.processQueue();
-        },
-        success: function(data, textStatus, XMLHttpRequest) {
+    this.jsonp({
+    	url: query.url,
+    	name: 'callback',
+    	callback: function(data) {
             that.lastApiCall = (new Date()).getTime();
-            query.callback(data, textStatus);
+            query.callback(data, '200 OK');
             that.busy = false;
             that.processQueue();
         },
-        url: query.url
+        failed: function() {
+            console.error("Error while downloading data.");
+            that.queue.push(query);
+            query.callback(null, 'Could not download JSONP resource.');
+            that.processQueue();
+        }
     });
 }
 
