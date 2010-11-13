@@ -21,7 +21,7 @@
 
 (function() {
 
-globalThis = this;
+var globalThis = this;
 
 var DeliciousAPI = function(params) {
     if (this === globalThis) throw 'Use "new" operator to create a DeliciousAPI object.';
